@@ -1,15 +1,14 @@
-# Using a lightweight web server image
+# Use lightweight Nginx image
 FROM nginx:alpine
 
-# Remove default nginx configuration if you want to customize; optional
-# COPY nginx.conf /etc/nginx/nginx.conf
+# Remove default Nginx content
+RUN rm -rf /usr/share/nginx/html/*
 
-# Copy site content to nginx html directory
-COPY ./E-Commerce/ /usr/share/nginx/html
+# Copy project files into Nginx html folder
+COPY . /usr/share/nginx/html
 
-
-# Expose HTTP port
+# Expose port 80
 EXPOSE 80
 
-# Run nginx in foreground
+# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
