@@ -5,7 +5,8 @@ FROM nginx:alpine
 # COPY nginx.conf /etc/nginx/nginx.conf
 
 # Copy site content to nginx html directory
-COPY . /usr/share/nginx/html
+COPY ./E-Commerce/ /usr/share/nginx/html
+
 
 # Expose HTTP port
 EXPOSE 80
