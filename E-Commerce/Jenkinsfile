@@ -1,0 +1,68 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = "ecommerce-website-dude"
+        DOCKER_REGISTRY = "docker.io/jagannath239"  // change
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/Jagannath-bite/ecommerce-website-dude.git',
+                    credentialsId: 'github-creds'   // Jenkins credential for GitHub
+            }
+        }
+
+        stage('Install & Build') {
+            when {
+                expression {
+                    // If there is a package.json, run build
+                    fileExists('package.json')
+                }
+            }
+            steps {
+                sh '''
+                    npm install
+                    npm run build
+                '''
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh "docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:latest ."
+                }
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker-hub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:latest
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Finished pipeline."
+        }
+        success {
+            echo "Succeeded!"
+        }
+        failure {
+            echo "Failed!"
+        }
+    }
+}
