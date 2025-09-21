@@ -1,13 +1,14 @@
-# Step 1: Build React app
-FROM node:18 AS build
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
-
-# Step 2: Serve with Nginx
+# Using a lightweight web server image
 FROM nginx:alpine
-COPY --from=build /app/build /usr/share/nginx/html
+
+# Remove default nginx configuration if you want to customize; optional
+# COPY nginx.conf /etc/nginx/nginx.conf
+
+# Copy site content to nginx html directory
+COPY . /usr/share/nginx/html
+
+# Expose HTTP port
 EXPOSE 80
+
+# Run nginx in foreground
 CMD ["nginx", "-g", "daemon off;"]
